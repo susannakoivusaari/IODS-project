@@ -1,7 +1,7 @@
 
 # About the project
 
-*This project is a part of the Introduction to Open Data Science (https://susannakoivusaari.github.io/IODS-project/)*
+*This project is a part of the Introduction to Open Data Science*
 
 
 ```{r}
@@ -18,6 +18,6 @@ I came across this course through the university's email. As I work mostly with 
 
 I just finished chapters 1-5. I was surprised how well I already knew most of these themes -- only the functions in the lubridate package were more unfamiliar to me. However, I also learned some new tricks, e.g. that you can rename variables within select() function!
 
-My GitHub repository is: https://susannakoivusaari.github.io/IODS-project/
+The GitHub repository can be found in: https://susannakoivusaari.github.io/IODS-project/
 
 
