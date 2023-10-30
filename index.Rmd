@@ -1,5 +1,6 @@
 ---
 title: "IODS course project"
+author: "Susanna Koivusaari"
 output:
   html_document:
     theme: cosmo
