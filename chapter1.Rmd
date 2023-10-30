@@ -1,6 +1,6 @@
 # About the project
 
-*This project is a part of the Introduction to Open Data Science*
+*This project is a part of the Introduction to Open Data Science 2023 course*
 
 ```{r}
 # This is a so-called "R chunk" where you can write R code.
