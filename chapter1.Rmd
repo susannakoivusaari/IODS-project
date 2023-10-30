@@ -1,8 +1,6 @@
-
 # About the project
 
 *This project is a part of the Introduction to Open Data Science*
-
 
 ```{r}
 # This is a so-called "R chunk" where you can write R code.
@@ -11,13 +9,10 @@ date()
 
 ```
 
-
 Assignment 1: Tasks and instructions
 
-I came across this course through the university's email. As I work mostly with large open source datasets and Rstudio, I thought it would be very useful for me. I have almost none experience with GitHub, so especially that part of the course will be new to me. 
+I came across this course through the university's email. As I work mostly with large open source datasets and Rstudio, I thought it would be very useful for me. I have almost none experience with GitHub, so especially that part of the course will be new to me.
 
 I just finished chapters 1-5. I was surprised how well I already knew most of these themes -- only the functions in the lubridate package were more unfamiliar to me. However, I also learned some new tricks, e.g. that you can rename variables within select() function!
 
-The GitHub repository can be found in: https://susannakoivusaari.github.io/IODS-project/
-
-
+The GitHub repository can be found in: <https://susannakoivusaari.github.io/IODS-project/>
