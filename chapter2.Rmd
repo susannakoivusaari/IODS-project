@@ -1,7 +1,5 @@
 # Chapter 2: Regression and model validation
 
-# test edit
-
 *In this chapter, we will practice regression and model validation with example data.*
 
 We will start by reading in the data that we will be using in this exercise.
