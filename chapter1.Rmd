@@ -1,5 +1,7 @@
 # Chapter 1: Start me up!
 
+# test edit 
+
 I came across this course through the university's email. As I work a lot with large open source data sets and Rstudio, I thought it would be very useful for me. I have almost no experience with GitHub, so especially the part of the course that focuses on using GitHub is new to me.
 
 I have now finished the first chapter of the course. I was surprised how well I already knew most of these themes -- only the functions in the lubridate package were more unfamiliar to me. However, I also learned some new tricks, e.g. that you can rename variables within select() function! This was very useful.
