@@ -11,8 +11,8 @@ date()
 
 Assignment 1: Tasks and instructions
 
-I came across this course through the university's email. As I work mostly with large open source datasets and Rstudio, I thought it would be very useful for me. I have almost none experience with GitHub, so especially that part of the course will be new to me.
+I came across this course through the university's email. As I work a lot with large open source datasets and Rstudio, I thought it would be very useful for me. I have almost no experience with GitHub, so especially the part of the course that focuses on using GitHub will be new to me.
 
-I just finished chapters 1-5. I was surprised how well I already knew most of these themes -- only the functions in the lubridate package were more unfamiliar to me. However, I also learned some new tricks, e.g. that you can rename variables within select() function!
+I just finished chapters 1-5. I was surprised how well I already knew most of these themes -- only the functions in the lubridate package were more unfamiliar to me. However, I also learned some new tricks, e.g. that you can rename variables within select() function! I think the Excercise set 1 is a great start for someone who is new to Rstudio. It had all the important functions to get started with processing your own data. Also, the R Markdown syntax was completely new to me, and it took a bit of time to understand how it works. 
 
-The GitHub repository can be found in: <https://susannakoivusaari.github.io/IODS-project/>
+My GitHub repository can be found [here](https://susannakoivusaari.github.io/IODS-project/)
