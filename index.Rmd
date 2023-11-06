@@ -17,6 +17,8 @@ output:
 
 *This project is a part of the Introduction to Open Data Science (IODS) 2023 course. Here, I will post assignments that I have done during the course.*
 
+***
+
 ```{r child = "chapter1.Rmd"}
 # This will include Chapter 1 (that is updated in its own file) in the document.
 ```
