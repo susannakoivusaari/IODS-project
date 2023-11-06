@@ -1,13 +1,93 @@
-# Insert chapter 2 title here
+# Chapter 2: Regression and model validation
 
-*Describe the work you have done this week and summarize your learning.*
+*In this chapter, we will practice regression and model validation with example data.*
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+We will start by reading in the data that we will be using in this exercise.
 
 ```{r}
-date()
+# set working directory 
+setwd("C:/Users/koivusus/IODS/IODS-project_new")
+
+# read in data 
+data <- read.csv("data/learning_2014_sel_fil.csv") 
 ```
 
-Here we go again...
+Next, we will explore the dimensions and the structure of the data using dim() and str() functions. According to the results, the data consist of 166 observations of 7 variables, which are in character, integer, and numerical formats. The variable "points" tells us how many points a person got in an exam, whereas variables "deep", "stra" and "surf" give us a look into whether a person has relied on deep, surface and strategic learning. The two character variables, "gender" and "age", give us some basic information about the study persons. Finally, the variable "attitude" tells us about the attitude of the study person towards statistics.
+
+```{r}
+# explore dimensions (number of rows and columns)
+dim(data)
+
+# explore structure 
+str(data)
+
+# remove unnecessary X column 
+data <- dplyr::select(data, !X)
+```
+
+Most of the variables in the data are relatively normally distributed. The clearest exception is in age -- the study was clearly focused on people around their twenties. Furthermore, a larger portion of the study persons were women. Out of all the variables, attitude towards statistics seems to be most strongly correlated with exam points. The size and direction of the correlation between variables between genders is otherwise pretty equal, except for age: for men, increase in age seems to affect the exam points negatively, whereas in women the effect is non significant.
+
+```{r}
+
+# install (if not yet installed) and load library 
+# install.packages("ggplot2")
+# install.packages("GGally")
+library(ggplot2)
+library(GGally)
+
+# create a plot matrix with ggpairs()
+ggpairs(data, mapping = aes(col = gender, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))
+
+# print summaries 
+summary(data)
+
+
+```
+
+*Show a summary of the fitted model and comment and interpret the results. Explain and interpret the statistical test related to the model parameters. If an explanatory variable in your model does not have a statistically significant relationship with the target variable, remove the variable from the model and fit the model again without it.*
+
+Next, we choose three variables, that are the most strongly correlated with exam points and fit a linear regression model using exam points as response variable. As suspected based on the correlations, attitude had statistically significant effect to the exam points.
+
+```{r}
+# fit a model with three 
+model <- lm(points ~ attitude + stra + surf, data = data)
+
+# print out summary
+summary(model)
+
+```
+
+*Using a summary of your fitted model, explain the relationship between the chosen explanatory variables and the target variable (interpret the model parameters). Explain and interpret the multiple R-squared of the model.*
+
+Variables "stra" and "surf" did not have statistically significant effect do let's remove them. In the reduced model, the multiple R-squared of the model (0.19) was relatively low, indicating that only 19 % of the variation in exam points was explained by attitude.
+
+```{r}
+# fit a model with three 
+model1 <- lm(points ~ attitude, data = data)
+
+# print out summary
+summary(model1)
+```
+
+*Produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage. Explain the assumptions of the model and interpret the validity of those assumptions based on the diagnostic plots.*
+
+Linear regression model makes three assumtions:
+
+-   Linearity: The relationship between X and the mean of Y is linear.
+
+```{=html}
+<!-- -->
+```
+-   Homoscedasticity: The variance of residual is the same for any value of X.
+
+-   Independence: Observations are independent of each other.
+
+Let's check how well out model satisfies these assumptions using the plot() function.
+
+```{r}
+
+# draw diagnostic plots using the plot() function. Choose the plots 1, 2 and 5
+par(mfrow = c(2,2))
+plot(model1, which = c(1,2,5))
+
+```
