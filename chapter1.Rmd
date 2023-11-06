@@ -6,4 +6,4 @@ I have now finished the first chapter of the course. I was surprised how well I 
 
 I think the Exercise set 1 is a great start for someone who is new to Rstudio. It has all the important functions to get started with processing your own data. The R Markdown syntax was at first a bit difficult to read in R, as I have never seen one before. However, I have read plenty of codes online written in this syntax, so its great to now learn how to make one in your own!
 
-My GitHub repository can be found [here](https://susannakoivusaari.github.io/IODS-project/).
+My GitHub repository can be found [here](https://github.com/susannakoivusaari/IODS-project).
