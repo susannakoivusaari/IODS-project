@@ -449,7 +449,7 @@ str(data)</code></pre>
 <pre class="r"><code># remove unnecessary X column 
 data &lt;- dplyr::select(data, !X)</code></pre>
 <p>Most of the variables in the data are relatively normally
-distributed. The clearest exception is in age – the study was clearly
+distributed. The clearest exception is age – the study was clearly
 focused on people around their twenties. Furthermore, a larger portion
 of the study persons were women. Out of all the variables, attitude
 towards statistics seems to be most strongly correlated with exam
@@ -485,15 +485,13 @@ summary(data)</code></pre>
 ##  Mean   :3.121   Mean   :2.787   Mean   :22.72  
 ##  3rd Qu.:3.625   3rd Qu.:3.167   3rd Qu.:27.75  
 ##  Max.   :5.000   Max.   :4.333   Max.   :33.00</code></pre>
-<p><em>Show a summary of the fitted model and comment and interpret the
-results. Explain and interpret the statistical test related to the model
-parameters. If an explanatory variable in your model does not have a
-statistically significant relationship with the target variable, remove
-the variable from the model and fit the model again without it.</em></p>
 <p>Next, we choose three variables, that are the most strongly
 correlated with exam points and fit a linear regression model using exam
-points as response variable. As suspected based on the correlations,
-attitude had statistically significant effect to the exam points.</p>
+points as response variable. As suspected based on the correlations we
+calculated earlier, attitude had statistically significant effect on
+exam points. Variables “stra” and “surf” however did not have
+statistically significant effect on exam points so let’s remove them
+from the model.</p>
 <pre class="r"><code># fit a model with three 
 model &lt;- lm(points ~ attitude + stra + surf, data = data)
 
@@ -519,14 +517,18 @@ summary(model)</code></pre>
 ## Residual standard error: 5.296 on 162 degrees of freedom
 ## Multiple R-squared:  0.2074, Adjusted R-squared:  0.1927 
 ## F-statistic: 14.13 on 3 and 162 DF,  p-value: 3.156e-08</code></pre>
-<p><em>Using a summary of your fitted model, explain the relationship
-between the chosen explanatory variables and the target variable
-(interpret the model parameters). Explain and interpret the multiple
-R-squared of the model.</em></p>
-<p>Variables “stra” and “surf” did not have statistically significant
-effect do let’s remove them. In the reduced model, the multiple
-R-squared of the model (0.19) was relatively low, indicating that only
-19 % of the variation in exam points was explained by attitude.</p>
+<p>The results from the final model with one explanatory variable
+indicate, that with a unit of increase in attitude towards statistics,
+the exam points increase by 0.33 units. If a larger attitude value means
+more positive attitude towars statistics, the results can be interpreted
+so that the more positive attitude you have towards statistics, the
+higher points you may get from the exam. However, the multiple R-squared
+of the model was relatively low (0.19), indicating that only 19 % of the
+variation in exam points was explained by attitude. Thus, it would be
+important to rethink which variables may affect the exam points of a
+study person. In my opinion, things like how many hours a person has
+slept during the night before the exam could be worth adding to the
+model.</p>
 <pre class="r"><code># fit a model with three 
 model1 &lt;- lm(points ~ attitude, data = data)
 
@@ -550,24 +552,24 @@ summary(model1)</code></pre>
 ## Residual standard error: 5.32 on 164 degrees of freedom
 ## Multiple R-squared:  0.1906, Adjusted R-squared:  0.1856 
 ## F-statistic: 38.61 on 1 and 164 DF,  p-value: 4.119e-09</code></pre>
-<p><em>Produce the following diagnostic plots: Residuals vs Fitted
-values, Normal QQ-plot and Residuals vs Leverage. Explain the
-assumptions of the model and interpret the validity of those assumptions
-based on the diagnostic plots.</em></p>
-<p>Linear regression model makes three assumtions:</p>
-<ul>
-<li>Linearity: The relationship between X and the mean of Y is
-linear.</li>
-</ul>
-<!-- -->
-<ul>
-<li><p>Homoscedasticity: The variance of residual is the same for any
-value of X.</p></li>
-<li><p>Independence: Observations are independent of each
-other.</p></li>
-</ul>
+<p>The main assumptions of a Linear regression model are 1) that the
+spread of the residuals is roughly the same across all values of the
+independent variable (i.e. homoscedasticity), and that 2) the residuals
+are normally distribution. In addition to this, the model results can be
+affected by outlier observations, wherefore it is important to assess
+whether there are any potential ones in the data.</p>
 <p>Let’s check how well out model satisfies these assumptions using the
-plot() function.</p>
+plot() function. The first plot (Residuals vs. Fitted values) tells us
+about the homoscedasticity of the model. As there are no clear trends
+visible in the plot (the points are quite randomly distributed) we can
+assume that the variance is roughly the same across the data. The second
+plot (Normal QQ) tells us about the normality assumption: the data seems
+to follow the line nicely, and therefore the residuals can be assumed to
+be normally distributed. The third plot (Residuals vs. Leverage) allows
+us to assess any outlier observations. There are few points that lie
+quite far away from the horizontal and vertical lines. Therefore, it may
+be a good idea to try to remove these points from the data and assess
+the model again to see if anything changes.</p>
 <pre class="r"><code># draw diagnostic plots using the plot() function. Choose the plots 1, 2 and 5
 par(mfrow = c(2,2))
 plot(model1, which = c(1,2,5))</code></pre>
