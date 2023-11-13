@@ -1,0 +1,106 @@
+# Chapter 3: Logistic regression 
+
+*In this chapter, we will practice logistic regression and model validation with example data.*
+
+We will start by reading in the data that we will be using in this exercise. The data consists of 370 rows and 33 columns. 
+
+
+```{r}
+# set working directory 
+setwd("C:/Users/koivusus/IODS/IODS-project_new")
+
+# read in data 
+data <- read.csv("data/alc.csv") 
+
+# print out the column names 
+colnames(data)
+
+# check dimensions
+dim(data)
+```
+
+My aim is to investigate which variables explain the high/low alcohol consumption in students. More specifically, I am interested in whether students gender (sex), student's home address type (address), family educational support (famsup) and attended nursery scool (nursery) explain the high/low alcohol consumption. 
+
+I hypothesize that it is more likely that a student belongs to the group of high alcohol consumption if 
+1) the student is male (males may be more prone to use high alcohol doses), 
+2) the student lives in a rural area (in rural areas high alcohol consumption may be more common than in urban areas because e.g. other substances may play a bigger part), 
+3) the student has lower family educational support (lower family educational support may cause students e.g. to feel depressed), 
+4) the student has not attended nursery school (not as much knowledge about the health effects of alcohol).
+
+Next, we will explore the distributions of the chosen variables and their relationships with alcohol consumption.
+
+Let's first produce a barplot of each variable. Looks like we have many binary variables, but also continuous ones. Only few of them are normally distributed. 
+
+```{r}
+
+# load library
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# draw a bar plot of each variable
+data %>% select(sex, address, famsup, nursery) %>% gather() %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
+
+```
+
+Let's do some cross-tabulations. As I hypothesized, the percent of high alcohol consumption students higher in men than in women. The percent of high alcohol consumption students is also higher in students living in rural areas, in students with no family educational support and within students that have not attended nursery school. All results sp far therefore support my hypotheses. 
+
+
+```{r}
+
+# see how many percent in men and in women belong to the high/low alcohol consumption class
+data %>% group_by(sex, high_use) %>% summarise(count = n()) %>% mutate(prop = count / sum(count))
+
+# see how many percent in students living in urban/rural areas belong to the high/low alcohol consumption class
+data %>% group_by(address, high_use) %>% summarise(count = n()) %>% mutate(prop = count / sum(count))
+
+# see how many percent in students that have received family educational support belong to the high/low alcohol consumption class
+data %>% group_by(famsup, high_use) %>% summarise(count = n()) %>% mutate(prop = count / sum(count))
+
+# see how many percent in students that have or have not attended nursery education belong to the high/low alcohol consumption class
+data %>% group_by(nursery, high_use) %>% summarise(count = n()) %>% mutate(prop = count / sum(count))
+
+
+```
+
+Let's make a boxplot of xx where the difference between groups was the largest. 
+
+
+```{r}
+
+```
+
+
+To further analyze the relationship between the chosen variables, I will run a logistic regression model. 
+
+
+*Use logistic regression to statistically explore the relationship between your chosen variables and the binary high/low alcohol consumption variable as the target variable. Present and interpret a summary of the fitted model. Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. Interpret the results and compare them to your previously stated hypothesis. Hint: If your model includes factor variables see for example the RHDS book or the first answer of this stackexchange thread on how R treats and how you should interpret these variables in the model output (or use some other resource to study this).*
+
+
+```{r}
+
+```
+
+
+
+*Using the variables which, according to your logistic regression model, had a statistical relationship with high/low alcohol consumption, explore the predictive power of you model. Provide a 2x2 cross tabulation of predictions versus the actual values and optionally display a graphic visualizing both the actual values and the predictions. Compute the total proportion of inaccurately classified individuals (= the training error) and comment on all the results. Compare the performance of the model with performance achieved by some simple guessing strategy.*
+
+
+```{r}
+
+```
+
+*Bonus: Perform 10-fold cross-validation on your model. Does your model have better test set performance (smaller prediction error using 10-fold cross-validation) compared to the model introduced in the Exercise Set (which had about 0.26 error). Could you find such a model?*
+
+
+```{r}
+
+```
+
+*Super-Bonus: Perform cross-validation to compare the performance of different logistic regression models (= different sets of predictors). Start with a very high number of predictors and explore the changes in the training and testing errors as you move to models with less predictors. Draw a graph displaying the trends of both training and testing errors by the number of predictors in the model.*
+
+
+```{r}
+
+```
+
