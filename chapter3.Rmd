@@ -63,30 +63,53 @@ data %>% group_by(nursery, high_use) %>% summarise(count = n()) %>% mutate(prop 
 
 ```
 
-Let's make a boxplot of xx where the difference between groups was the largest. 
-
-
-```{r}
-
-```
-
-
 To further analyze the relationship between the chosen variables, I will run a logistic regression model. 
-
 
 *Use logistic regression to statistically explore the relationship between your chosen variables and the binary high/low alcohol consumption variable as the target variable. Present and interpret a summary of the fitted model. Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. Interpret the results and compare them to your previously stated hypothesis. Hint: If your model includes factor variables see for example the RHDS book or the first answer of this stackexchange thread on how R treats and how you should interpret these variables in the model output (or use some other resource to study this).*
 
-
 ```{r}
+# find a model
+mod1 <- glm(high_use ~ sex + address + famsup + nursery, data = data, family = "binomial")
+
+# print summary 
+summary(mod1)
+
+# compute odds ratios (OR)
+OR <- coef(mod1) %>% exp
+
+# compute confidence intervals (CI)
+CI <- confint(mod1) %>% exp
+
+# print out the odds ratios with their confidence intervals
+cbind(OR, CI)
 
 ```
-
-
 
 *Using the variables which, according to your logistic regression model, had a statistical relationship with high/low alcohol consumption, explore the predictive power of you model. Provide a 2x2 cross tabulation of predictions versus the actual values and optionally display a graphic visualizing both the actual values and the predictions. Compute the total proportion of inaccurately classified individuals (= the training error) and comment on all the results. Compare the performance of the model with performance achieved by some simple guessing strategy.*
 
 
 ```{r}
+
+# fit a model with only the variables that had statistical relationship with alcohol consumption 
+mod2 <- glm(high_use ~ sex + address, data = data, family = "binomial")
+
+# print summary 
+summary(mod2)
+
+# predict() the probability of high_use
+probabilities <- predict(mod2, type = "response")
+
+# add the predicted probabilities to 'alc'
+data <- mutate(data, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+data <- mutate(data, prediction = probability > 0.5)
+
+# see the last ten original classes, predicted probabilities, and class predictions
+select(data, failures, absences, sex, high_use, probability, prediction) %>% tail(10)
+
+# tabulate the target variable versus the predictions
+table(high_use = data$high_use, prediction = data$prediction)
 
 ```
 

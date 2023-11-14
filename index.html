@@ -691,8 +691,6 @@ data %&gt;% group_by(nursery, high_use) %&gt;% summarise(count = n()) %&gt;% mut
 ## 2 no      TRUE        26 0.361
 ## 3 yes     FALSE      213 0.715
 ## 4 yes     TRUE        85 0.285</code></pre>
-<p>Let’s make a boxplot of xx where the difference between groups was
-the largest.</p>
 <p>To further analyze the relationship between the chosen variables, I
 will run a logistic regression model.</p>
 <p><em>Use logistic regression to statistically explore the relationship
@@ -705,6 +703,47 @@ hypothesis. Hint: If your model includes factor variables see for
 example the RHDS book or the first answer of this stackexchange thread
 on how R treats and how you should interpret these variables in the
 model output (or use some other resource to study this).</em></p>
+<pre class="r"><code># find a model
+mod1 &lt;- glm(high_use ~ sex + address + famsup + nursery, data = data, family = &quot;binomial&quot;)
+
+# print summary 
+summary(mod1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = high_use ~ sex + address + famsup + nursery, family = &quot;binomial&quot;, 
+##     data = data)
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -0.716933   0.374261  -1.916 0.055416 .  
+## sexM         0.916651   0.238880   3.837 0.000124 ***
+## addressU    -0.459666   0.271096  -1.696 0.089965 .  
+## famsupyes   -0.002989   0.243205  -0.012 0.990194    
+## nurseryyes  -0.316908   0.285996  -1.108 0.267824    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 452.04  on 369  degrees of freedom
+## Residual deviance: 431.82  on 365  degrees of freedom
+## AIC: 441.82
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code># compute odds ratios (OR)
+OR &lt;- coef(mod1) %&gt;% exp
+
+# compute confidence intervals (CI)
+CI &lt;- confint(mod1) %&gt;% exp</code></pre>
+<pre><code>## Waiting for profiling to be done...</code></pre>
+<pre class="r"><code># print out the odds ratios with their confidence intervals
+cbind(OR, CI)</code></pre>
+<pre><code>##                    OR     2.5 %   97.5 %
+## (Intercept) 0.4882475 0.2314463 1.008482
+## sexM        2.5009003 1.5729358 4.019096
+## addressU    0.6314946 0.3723072 1.080690
+## famsupyes   0.9970153 0.6209114 1.613621
+## nurseryyes  0.7283975 0.4181094 1.287680</code></pre>
 <p><em>Using the variables which, according to your logistic regression
 model, had a statistical relationship with high/low alcohol consumption,
 explore the predictive power of you model. Provide a 2x2 cross
@@ -714,6 +753,59 @@ predictions. Compute the total proportion of inaccurately classified
 individuals (= the training error) and comment on all the results.
 Compare the performance of the model with performance achieved by some
 simple guessing strategy.</em></p>
+<pre class="r"><code># fit a model with only the variables that had statistical relationship with alcohol consumption 
+mod2 &lt;- glm(high_use ~ sex + address, data = data, family = &quot;binomial&quot;)
+
+# print summary 
+summary(mod2)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = high_use ~ sex + address, family = &quot;binomial&quot;, 
+##     data = data)
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -0.9557     0.2674  -3.574 0.000351 ***
+## sexM          0.9169     0.2349   3.903 9.49e-05 ***
+## addressU     -0.4796     0.2700  -1.776 0.075756 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 452.04  on 369  degrees of freedom
+## Residual deviance: 433.03  on 367  degrees of freedom
+## AIC: 439.03
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code># predict() the probability of high_use
+probabilities &lt;- predict(mod2, type = &quot;response&quot;)
+
+# add the predicted probabilities to &#39;alc&#39;
+data &lt;- mutate(data, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+data &lt;- mutate(data, prediction = probability &gt; 0.5)
+
+# see the last ten original classes, predicted probabilities, and class predictions
+select(data, failures, absences, sex, high_use, probability, prediction) %&gt;% tail(10)</code></pre>
+<pre><code>##     failures absences sex high_use probability prediction
+## 361        0        3   M    FALSE   0.3732422      FALSE
+## 362        1        0   M    FALSE   0.4903075      FALSE
+## 363        1        7   M     TRUE   0.4903075      FALSE
+## 364        0        1   F    FALSE   0.2777488      FALSE
+## 365        0        6   F    FALSE   0.2777488      FALSE
+## 366        1        2   F    FALSE   0.2777488      FALSE
+## 367        0        2   F    FALSE   0.1922877      FALSE
+## 368        0        3   F    FALSE   0.1922877      FALSE
+## 369        0        4   M     TRUE   0.3732422      FALSE
+## 370        0        2   M     TRUE   0.4903075      FALSE</code></pre>
+<pre class="r"><code># tabulate the target variable versus the predictions
+table(high_use = data$high_use, prediction = data$prediction)</code></pre>
+<pre><code>##         prediction
+## high_use FALSE
+##    FALSE   259
+##    TRUE    111</code></pre>
 <p><em>Bonus: Perform 10-fold cross-validation on your model. Does your
 model have better test set performance (smaller prediction error using
 10-fold cross-validation) compared to the model introduced in the
