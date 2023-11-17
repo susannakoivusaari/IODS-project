@@ -618,10 +618,8 @@ educational support may cause students e.g. to feel depressed), 4) the
 student has not attended nursery school (not as much knowledge about the
 health effects of alcohol).</p>
 <p>Next, we will explore the distributions of the chosen variables and
-their relationships with alcohol consumption.</p>
-<p>Let’s first produce a barplot of each variable. Looks like we have
-many binary variables, but also continuous ones. Only few of them are
-normally distributed.</p>
+their relationships with alcohol consumption. Let’s first produce a
+barplot of each variable. Looks like they are all binary.</p>
 <pre class="r"><code># load library
 library(ggplot2)
 library(tidyr)
@@ -642,7 +640,7 @@ high alcohol consumption students higher in men than in women. The
 percent of high alcohol consumption students is also higher in students
 living in rural areas, in students with no family educational support
 and within students that have not attended nursery school. All results
-sp far therefore support my hypotheses.</p>
+so far therefore support my hypotheses.</p>
 <pre class="r"><code># see how many percent in men and in women belong to the high/low alcohol consumption class
 data %&gt;% group_by(sex, high_use) %&gt;% summarise(count = n()) %&gt;% mutate(prop = count / sum(count))</code></pre>
 <pre><code>## `summarise()` has grouped output by &#39;sex&#39;. You can override using the `.groups`
@@ -693,16 +691,24 @@ data %&gt;% group_by(nursery, high_use) %&gt;% summarise(count = n()) %&gt;% mut
 ## 4 yes     TRUE        85 0.285</code></pre>
 <p>To further analyze the relationship between the chosen variables, I
 will run a logistic regression model.</p>
-<p><em>Use logistic regression to statistically explore the relationship
-between your chosen variables and the binary high/low alcohol
-consumption variable as the target variable. Present and interpret a
-summary of the fitted model. Present and interpret the coefficients of
-the model as odds ratios and provide confidence intervals for them.
-Interpret the results and compare them to your previously stated
-hypothesis. Hint: If your model includes factor variables see for
-example the RHDS book or the first answer of this stackexchange thread
-on how R treats and how you should interpret these variables in the
-model output (or use some other resource to study this).</em></p>
+<p>The summary of the model shows that only variables “sex” and
+“address” had statistical relationships with alcohol consumption, with
+the p-value of address being only 0.09. The coefficient of 0.916651 for
+the “sexM” variable suggests that being male (sexM) is associated with
+an increase in the log-odds of the response variable being TRUE
+(high_use) by 0.916651. The coefficient of -0.459666 for the “addressU”
+variable suggests that having an address of “U” (Urban area) is
+associated with a decrease in the log-odds of the response variable
+being TRUE (high_use) by 0.459666.</p>
+<p>Next, we will look closer into the odds ratios, which quantify the
+strength of the relationship between dependent and independent
+variables. The results can be interpreted so that if OR = 1, the odds of
+high_use being TRUE or FALSE are the same, regardless of the dependent
+variable. On other words, odds ratio values that are other than 1 have
+some kind of effect on the response variable. Thus, for all other
+variables than sex, the condifence interval includes the value 1,
+suggesting that only sex has statistically significant effects on the
+odds of high_use being TRUE or FALSE.</p>
 <pre class="r"><code># find a model
 mod1 &lt;- glm(high_use ~ sex + address + famsup + nursery, data = data, family = &quot;binomial&quot;)
 
@@ -744,41 +750,19 @@ cbind(OR, CI)</code></pre>
 ## addressU    0.6314946 0.3723072 1.080690
 ## famsupyes   0.9970153 0.6209114 1.613621
 ## nurseryyes  0.7283975 0.4181094 1.287680</code></pre>
-<p><em>Using the variables which, according to your logistic regression
-model, had a statistical relationship with high/low alcohol consumption,
-explore the predictive power of you model. Provide a 2x2 cross
-tabulation of predictions versus the actual values and optionally
-display a graphic visualizing both the actual values and the
-predictions. Compute the total proportion of inaccurately classified
-individuals (= the training error) and comment on all the results.
-Compare the performance of the model with performance achieved by some
-simple guessing strategy.</em></p>
+<p>Let’s fit the model again with the variable that had statistically
+significant effect on alcohol consumption (sex) and investigate the
+predictive power of the model.</p>
+<p>According to the cross tabulation of predictions versus actual
+values, rows that had actual value FALSE were predicted to be FALSE by
+the model 259 times (70 %), whereas actual values TRUE were predicted as
+FALSE 111 times (30 %). In other words, the model predicted FALSE for
+all actual values. Thus, the model maybe works a bit bettew than simply
+guessing in which class a person belongs.</p>
 <pre class="r"><code># fit a model with only the variables that had statistical relationship with alcohol consumption 
-mod2 &lt;- glm(high_use ~ sex + address, data = data, family = &quot;binomial&quot;)
+mod2 &lt;- glm(high_use ~ sex, data = data, family = &quot;binomial&quot;)
 
-# print summary 
-summary(mod2)</code></pre>
-<pre><code>## 
-## Call:
-## glm(formula = high_use ~ sex + address, family = &quot;binomial&quot;, 
-##     data = data)
-## 
-## Coefficients:
-##             Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)  -0.9557     0.2674  -3.574 0.000351 ***
-## sexM          0.9169     0.2349   3.903 9.49e-05 ***
-## addressU     -0.4796     0.2700  -1.776 0.075756 .  
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## (Dispersion parameter for binomial family taken to be 1)
-## 
-##     Null deviance: 452.04  on 369  degrees of freedom
-## Residual deviance: 433.03  on 367  degrees of freedom
-## AIC: 439.03
-## 
-## Number of Fisher Scoring iterations: 4</code></pre>
-<pre class="r"><code># predict() the probability of high_use
+# predict() the probability of high_use
 probabilities &lt;- predict(mod2, type = &quot;response&quot;)
 
 # add the predicted probabilities to &#39;alc&#39;
@@ -788,29 +772,48 @@ data &lt;- mutate(data, probability = probabilities)
 data &lt;- mutate(data, prediction = probability &gt; 0.5)
 
 # see the last ten original classes, predicted probabilities, and class predictions
-select(data, failures, absences, sex, high_use, probability, prediction) %&gt;% tail(10)</code></pre>
-<pre><code>##     failures absences sex high_use probability prediction
-## 361        0        3   M    FALSE   0.3732422      FALSE
-## 362        1        0   M    FALSE   0.4903075      FALSE
-## 363        1        7   M     TRUE   0.4903075      FALSE
-## 364        0        1   F    FALSE   0.2777488      FALSE
-## 365        0        6   F    FALSE   0.2777488      FALSE
-## 366        1        2   F    FALSE   0.2777488      FALSE
-## 367        0        2   F    FALSE   0.1922877      FALSE
-## 368        0        3   F    FALSE   0.1922877      FALSE
-## 369        0        4   M     TRUE   0.3732422      FALSE
-## 370        0        2   M     TRUE   0.4903075      FALSE</code></pre>
+select(data, sex, high_use, probability, prediction) %&gt;% tail(10)</code></pre>
+<pre><code>##     sex high_use probability prediction
+## 361   M    FALSE   0.4000000      FALSE
+## 362   M    FALSE   0.4000000      FALSE
+## 363   M     TRUE   0.4000000      FALSE
+## 364   F    FALSE   0.2102564      FALSE
+## 365   F    FALSE   0.2102564      FALSE
+## 366   F    FALSE   0.2102564      FALSE
+## 367   F    FALSE   0.2102564      FALSE
+## 368   F    FALSE   0.2102564      FALSE
+## 369   M     TRUE   0.4000000      FALSE
+## 370   M     TRUE   0.4000000      FALSE</code></pre>
 <pre class="r"><code># tabulate the target variable versus the predictions
-table(high_use = data$high_use, prediction = data$prediction)</code></pre>
+table(high_use = data$high_use, prediction = data$prediction) # prediction produced FALSE to all study persons </code></pre>
 <pre><code>##         prediction
 ## high_use FALSE
 ##    FALSE   259
 ##    TRUE    111</code></pre>
-<p><em>Bonus: Perform 10-fold cross-validation on your model. Does your
-model have better test set performance (smaller prediction error using
-10-fold cross-validation) compared to the model introduced in the
-Exercise Set (which had about 0.26 error). Could you find such a
-model?</em></p>
+<pre class="r"><code># print the table in percentages 
+prop.table(table(high_use = data$high_use, prediction = data$prediction)) * 100</code></pre>
+<pre><code>##         prediction
+## high_use FALSE
+##    FALSE    70
+##    TRUE     30</code></pre>
+<p>Let’s perform 10-fold cross-validation. The model slightly higher
+prediction error than the one in the exercise (circa 0.31 versus
+0.26).</p>
+<pre class="r"><code># define a loss function (mean prediction error)
+loss_func &lt;- function(class, prob) {
+  n_wrong &lt;- abs(class - prob) &gt; 0.5 
+  mean(n_wrong)
+}
+
+# load library
+library(boot)</code></pre>
+<pre><code>## Warning: package &#39;boot&#39; was built under R version 4.3.2</code></pre>
+<pre class="r"><code># K-fold cross-validation
+cv &lt;- cv.glm(data = data, cost = loss_func, glmfit = mod2, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]</code></pre>
+<pre><code>## [1] 0.3</code></pre>
 <p><em>Super-Bonus: Perform cross-validation to compare the performance
 of different logistic regression models (= different sets of
 predictors). Start with a very high number of predictors and explore the

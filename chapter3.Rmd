@@ -27,9 +27,7 @@ I hypothesize that it is more likely that a student belongs to the group of high
 3) the student has lower family educational support (lower family educational support may cause students e.g. to feel depressed), 
 4) the student has not attended nursery school (not as much knowledge about the health effects of alcohol).
 
-Next, we will explore the distributions of the chosen variables and their relationships with alcohol consumption.
-
-Let's first produce a barplot of each variable. Looks like we have many binary variables, but also continuous ones. Only few of them are normally distributed. 
+Next, we will explore the distributions of the chosen variables and their relationships with alcohol consumption. Let's first produce a barplot of each variable. Looks like they are all binary. 
 
 ```{r}
 
@@ -43,7 +41,7 @@ data %>% select(sex, address, famsup, nursery) %>% gather() %>% ggplot(aes(value
 
 ```
 
-Let's do some cross-tabulations. As I hypothesized, the percent of high alcohol consumption students higher in men than in women. The percent of high alcohol consumption students is also higher in students living in rural areas, in students with no family educational support and within students that have not attended nursery school. All results sp far therefore support my hypotheses. 
+Let's do some cross-tabulations. As I hypothesized, the percent of high alcohol consumption students higher in men than in women. The percent of high alcohol consumption students is also higher in students living in rural areas, in students with no family educational support and within students that have not attended nursery school. All results so far therefore support my hypotheses. 
 
 
 ```{r}
@@ -65,7 +63,10 @@ data %>% group_by(nursery, high_use) %>% summarise(count = n()) %>% mutate(prop 
 
 To further analyze the relationship between the chosen variables, I will run a logistic regression model. 
 
-*Use logistic regression to statistically explore the relationship between your chosen variables and the binary high/low alcohol consumption variable as the target variable. Present and interpret a summary of the fitted model. Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. Interpret the results and compare them to your previously stated hypothesis. Hint: If your model includes factor variables see for example the RHDS book or the first answer of this stackexchange thread on how R treats and how you should interpret these variables in the model output (or use some other resource to study this).*
+The summary of the model shows that only variables "sex" and "address" had statistical relationships with alcohol consumption, with the p-value of address being only 0.09. The coefficient of 0.916651 for the "sexM" variable suggests that being male (sexM) is associated with an increase in the log-odds of the response variable being TRUE (high_use) by 0.916651. The coefficient of -0.459666 for the "addressU" variable suggests that having an address of "U" (Urban area) is associated with a decrease in the log-odds of the response variable being TRUE (high_use) by 0.459666. 
+
+Next, we will look closer into the odds ratios, which quantify the strength of the relationship between dependent and independent variables. The results can be interpreted so that if OR = 1, the odds of high_use being TRUE or FALSE are the same, regardless of the dependent variable. On other words, odds ratio values that are other than 1 have some kind of effect on the response variable. Thus, for all other variables than sex, the condifence interval includes the value 1, suggesting that only sex has statistically significant effects on the odds of high_use being TRUE or FALSE. 
+
 
 ```{r}
 # find a model
@@ -85,16 +86,13 @@ cbind(OR, CI)
 
 ```
 
-*Using the variables which, according to your logistic regression model, had a statistical relationship with high/low alcohol consumption, explore the predictive power of you model. Provide a 2x2 cross tabulation of predictions versus the actual values and optionally display a graphic visualizing both the actual values and the predictions. Compute the total proportion of inaccurately classified individuals (= the training error) and comment on all the results. Compare the performance of the model with performance achieved by some simple guessing strategy.*
+Let's fit the model again with the variable that had statistically significant effect on alcohol consumption (sex) and investigate the predictive power of the model. 
 
+According to the cross tabulation of predictions versus actual values, rows that had actual value FALSE were predicted to be FALSE by the model 259 times (70 %), whereas actual values TRUE were predicted as FALSE 111 times (30 %). In other words, the model predicted FALSE for all actual values. Thus, the model maybe works a bit bettew than simply guessing in which class a person belongs. 
 
 ```{r}
-
 # fit a model with only the variables that had statistical relationship with alcohol consumption 
-mod2 <- glm(high_use ~ sex + address, data = data, family = "binomial")
-
-# print summary 
-summary(mod2)
+mod2 <- glm(high_use ~ sex, data = data, family = "binomial")
 
 # predict() the probability of high_use
 probabilities <- predict(mod2, type = "response")
@@ -106,18 +104,31 @@ data <- mutate(data, probability = probabilities)
 data <- mutate(data, prediction = probability > 0.5)
 
 # see the last ten original classes, predicted probabilities, and class predictions
-select(data, failures, absences, sex, high_use, probability, prediction) %>% tail(10)
+select(data, sex, high_use, probability, prediction) %>% tail(10)
 
 # tabulate the target variable versus the predictions
-table(high_use = data$high_use, prediction = data$prediction)
+table(high_use = data$high_use, prediction = data$prediction) # prediction produced FALSE to all study persons 
 
+# print the table in percentages 
+prop.table(table(high_use = data$high_use, prediction = data$prediction)) * 100
 ```
-
-*Bonus: Perform 10-fold cross-validation on your model. Does your model have better test set performance (smaller prediction error using 10-fold cross-validation) compared to the model introduced in the Exercise Set (which had about 0.26 error). Could you find such a model?*
-
+Let's perform 10-fold cross-validation. The model slightly higher prediction error than the one in the exercise (circa 0.31 versus 0.26). 
 
 ```{r}
+# define a loss function (mean prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5 
+  mean(n_wrong)
+}
 
+# load library
+library(boot)
+
+# K-fold cross-validation
+cv <- cv.glm(data = data, cost = loss_func, glmfit = mod2, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
 ```
 
 *Super-Bonus: Perform cross-validation to compare the performance of different logistic regression models (= different sets of predictors). Start with a very high number of predictors and explore the changes in the training and testing errors as you move to models with less predictors. Draw a graph displaying the trends of both training and testing errors by the number of predictors in the model.*
@@ -126,4 +137,3 @@ table(high_use = data$high_use, prediction = data$prediction)
 ```{r}
 
 ```
-
