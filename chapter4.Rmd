@@ -2,9 +2,9 @@
 
 *In this chapter, we will practice clustering and classification with example data.*
 
-*Load the Boston data from the MASS package. Explore the structure and the dimensions of the data and describe the dataset briefly, assuming the reader has no previous knowledge of it. Details about the Boston dataset can be seen for example here. (0-1 points)*
 
-We will start by reading in the "Boston" data from the MASS package. The data consists of 506 rows and 14 columns. It has both numeric and integer variables. 
+We will start by reading in the Boston data from the MASS package. The data consists of 506 rows and 14 columns. It has both numeric and integer variables. It reflects Housing Values in Suburbs of Boston. 
+
 
 ```{r}
 # load library
@@ -18,25 +18,34 @@ str(Boston)
 dim(Boston)
 ```
 
-*Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-2 points)*
+Most of the variables are skewed to some direction. Only a few, like rm and medv are realatively normally distributed. 
+The strongest correlations are between the variables rad and tax (neg), dis and age (pos), dis and nox (pos), dis and indus, lstat and medv (pos).
+
 
 ```{r}
 # load library
 library(corrplot)
+library(dplyr)
+require(reshape2)
 
-# show a graphical overview of the data 
-pairs(Boston)
+# convert wide to long
+melt.boston <- melt(Boston)
 
-# make a nicer correlation plot 
+# plot distributions 
+ggplot(data = melt.boston, aes(x = value)) + 
+stat_density() + 
+facet_wrap(~variable, scales = "free")
+
+# plot simple correlation plot 
 cor_matrix <- cor(Boston) %>% round(2)
 corrplot(cor_matrix, method = "circle", type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6)
-
+ 
 # show summaries of the variables 
 summary(Boston)
 
 ```
 
-*Standardize the dataset and print out summaries of the scaled data. How did the variables change? Create a categorical variable of the crime rate in the Boston dataset (from the scaled crime rate). Use the quantiles as the break points in the categorical variable. Drop the old crime rate variable from the dataset. Divide the dataset to train and test sets, so that 80% of the data belongs to the train set. (0-2 points)*
+Lets standardize all the values (mean = 0), and create a categorical variable "crime". Let's also divide the dataset to train and test sets, so that 80% of the data belongs to the train set. 
 
 ```{r}
 # center and standardize variables
@@ -74,7 +83,7 @@ test <- boston_scaled_df[-ind,]
 
 ```
 
-*Fit the linear discriminant analysis on the train set. Use the categorical crime rate as the target variable and all the other variables in the dataset as predictor variables. Draw the LDA (bi)plot. (0-3 points)*
+Next, we will fit a linear discriminant analysis on the train set, and use the categorical crime rate as the target variable and all the other variables as predictor variables. 
 
 ```{r}
 # fit a linear discriminant analysis
@@ -97,8 +106,8 @@ classes <- as.numeric(train$crime)
 plot(lda.fit, dimen = 2)
 lda.arrows(lda.fit, myscale = 1)
 ```
-
-*Save the crime categories from the test set and then remove the categorical crime variable from the test dataset. Then predict the classes with the LDA model on the test data. Cross tabulate the results with the crime categories from the test set. Comment on the results. (0-3 points)*
+Let's save the crime categories from the test set and remove the categorical crime variable from the test dataset.
+Next, we will predict the classes with the LDA model on the test data. The cross tabulated results show that a relatively small amount of the observations were falsely categorized by the model. For example, from med_low's, only 8 observations were altogether falsely categorized, whereas 17 was correclty categorized. 
 
 ```{r}
 # save the classes from test data
@@ -114,9 +123,9 @@ lda.pred <- predict(lda.fit, newdata = test)
 table(correct = classes, predicted = lda.pred$class)
 ```
 
-*Reload the Boston dataset and standardize the dataset (we did not do this in the Exercise Set, but you should scale the variables to get comparable distances). Calculate the distances between the observations. Run k-means algorithm on the dataset. Investigate what is the optimal number of clusters and run the algorithm again. Visualize the clusters (for example with the pairs() or ggpairs() functions, where the clusters are separated with colors) and interpret the results. (0-4 points)*
+Lets's reload the Boston dataset, standardize it and calculate the distances between the observations. 
 
-*When you plot the number of clusters and the total WCSS, the optimal number of clusters is when the total WCSS drops radically.*
+After this, we will run k-means algorithm on the dataset and investigate what is the optimal number of clusters. According to the visualization, the optimal number is 2 (i.e. the point when the total WCSS drops radically). 
 
 ```{r}
 # load the data
