@@ -2,11 +2,17 @@
 
 *In this chapter, we will practice dimensionality reduction techniques with example data.*
 
-Let's start by reading in the data. The data consists of 9 variables of which only exp_educ is relatively normally distributed. The rest of them are skewed in one way or another. The strongest correlation is between exp_life and exp_educ, indicating that in countries where more people have education, the life expectancy is also higher.
+Let's start by reading in the data. The data consists of 9 variables of which only exp_educ is relatively normally distributed. The rest of them are skewed in one way or another. The strongest correlation is between exp_life and exp_educ, indicating that in countries where more people have a secondary education, the life expectancy is higher.
 
 ```{r}
 # read in the data 
 human <- read.csv("C:/Users/koivusus/IODS/IODS-project_new/data/human.csv")
+
+# inspect the data 
+head(human)
+
+# remove X column 
+human <- dplyr::select(human, -X)
 
 # move the country names to rownames 
 library(tibble)
@@ -20,49 +26,63 @@ ggpairs(human1, progress = FALSE)
 summary(human1)
 ```
 
-*2. Perform principal component analysis (PCA) on the raw (non-standardized) human data. Show the variability captured by the principal components. Draw a biplot displaying the observations by the first two principal components (PC1 coordinate in x-axis, PC2 coordinate in y-axis), along with arrows representing the original variables. (0-2 points)*
+Let's perform a principal component analysis (PCA) on the raw (non-standardized) human data, and show the variability captured by the principal components in percentages. 
+
+Let's draw a biplot displaying the observations by the first two principal components (PC1 coordinate in x-axis, PC2 coordinate in y-axis), along with arrows representing the original variables.
 
 ```{r}
 # perform principal component analysis (with the SVD method)
 pca_human1 <- prcomp(human1)
 
-# draw a biplot of the principal component representation and the original variables
-biplot(pca_human1, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+# save summary in an object 
+s <- summary(pca_human1)
+
+# show variability captured by the principal components as rounded percentanges of variance captured by each PC
+pca_pr <- round(1*s$importance[2, ], digits = 5)
+
+# print out the percentages of variance
+print(pca_pr)
+
+# create object pc_lab to be used as axis labels
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)")
+
+# draw a biplot
+biplot(pca_human1, cex = c(0.8, 1), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
 ```
 
-*3. Standardize the variables in the human data and repeat the above analysis. Interpret the results of both analysis (with and without standardizing). Are the results different? Why or why not? Include captions (brief descriptions) in your plots where you describe the results by using not just your variable names, but the actual phenomena they relate to. (0-4 points)*
+Let's standardize the variables in the human data and repeat the above analysis. 
+
+Looks like the results from raw data vs. standardized data differ from each other quite a lot. In the raw data, the first component takes almost all of the variation, whereas in the standardized data, the variation is split between multiple components. 
+
+*Interpret the results of both analysis (with and without standardizing). Are the results different? Why or why not? Include captions (brief descriptions) in your plots where you describe the results by using not just your variable names, but the actual phenomena they relate to. (0-4 points)*
+
+*4. Give your personal interpretations of the first two principal component dimensions based on the biplot drawn after PCA on the standardized human data. (0-2 points)*
 
 ```{r}
 # standardize the variables
 human_std <- scale(human1)
 
-# print out summaries of the standardized variables
-summary(human_std)
-
 # perform principal component analysis (with the SVD method)
 pca_human_std <- prcomp(human_std)
 
-# draw a biplot of the principal component representation and the original variables
-biplot(pca_human_std, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
-```
+# save summary in an object 
+s_std <- summary(pca_human_std)
 
-*4. Give your personal interpretations of the first two principal component dimensions based on the biplot drawn after PCA on the standardized human data. (0-2 points)*
-
-```{r}
-# create and print out a summary of pca_human
-s <- summary(pca_human1)
-print(s)
-
-# rounded percentanges of variance captured by each PC
-pca_pr <- round(1*s$importance[2, ], digits = 5)
+# show variability captured by the principal components as rounded percentanges of variance captured by each PC
+pca_pr_std <- round(1*s_std$importance[2, ], digits = 5)
 
 # print out the percentages of variance
-print(pca_pr)
+print(pca_pr_std)
+
+# create object pc_lab to be used as axis labels
+pc_lab_std <- paste0(names(pca_pr_std), " (", pca_pr, "%)")
+
+# draw a biplot
+biplot(pca_human_std, cex = c(0.8, 1), col = c("grey40", "deeppink2"), xlab = pc_lab_std[1], ylab = pc_lab_std[2])
+
 ```
 
-*5. The tea data comes from the FactoMineR package and it is measured with a questionnaire on tea: 300 individuals were asked how they drink tea (18 questions) and what are their product's perception (12 questions). In addition, some personal details were asked (4 questions).*
-
-*Load the tea dataset and convert its character variables to factors:*
+Let's download the tea data from the FactoMineR package and convert its character variables to factors. It is a questionnaire on tea: 300 individuals were asked how they drink tea and what are their product's perception. In addition, some personal details were asked.
 
 ```{r}
 # load the tea dataset and convert its character variables to factors 
@@ -70,7 +90,7 @@ tea <- read.csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open
 
 ```
 
-*Explore the data briefly: look at the structure and the dimensions of the data. Use View(tea) to browse its contents, and visualize the data.*
+Let's explore the data briefly by looking at the structure and the dimensions of the data, viewing its contents and visualizing it. 
 
 ```{r}
 # explore structure 
@@ -80,34 +100,33 @@ str(tea)
 dim(tea)
 
 # view the data
-#View(tea)
+View(tea)
 
 # load libraries 
 library(dplyr)
 library(tidyr)
 
-# column names to keep in the dataset
-keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
-
-# select the 'keep_columns' to create a new dataset
-tea_time <- select(tea, one_of(keep_columns))
+# select columns to plot (otherwise there are too many to show in one plot)
+tea_time <- dplyr::select(tea, Tea, How, how, sugar, where, lunch)
 
 # visualize the dataset
-#library(ggplot2)
-#pivot_longer(tea_time, cols = everything()) %>% 
-#  ggplot(aes(value)) + geom_bar() + facet_wrap("name", scales = "free") + theme(axis.text.x = element_text(angle = 45, hjust = 1, #size = 8))
+library(ggplot2)
+pivot_longer(tea_time, cols = everything()) %>% 
+  ggplot(aes(value)) + geom_bar() + facet_wrap("name", scales = "free") + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
 ```
 
-*Use Multiple Correspondence Analysis (MCA) on the tea data (or on just certain columns of the data, it is up to you!). Interpret the results of the MCA and draw at least the variable biplot of the analysis. You can also explore other plotting options for MCA. Comment on the output of the plots. (0-4 points)*
+Let's use Multiple Correspondence Analysis (MCA) on the tea data. 
+
+*Interpret the results of the MCA and draw at least the variable biplot of the analysis. You can also explore other plotting options for MCA. Comment on the output of the plots. (0-4 points)*
 
 ```{r}
 # multiple correspondence analysis
-#library(FactoMineR)
-#mca <- MCA(tea_time, graph = FALSE)
+library(FactoMineR)
+mca <- MCA(tea_time, graph = FALSE)
 
 # summary of the model
-#summary(mca)
+summary(mca)
 
 # visualize MCA
-#plot(mca, invisible=c("ind"), graph.type = "classic", habillage = "quali")
+plot(mca, invisible=c("ind"), graph.type = "classic", habillage = "quali")
 ```
