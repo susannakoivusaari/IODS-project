@@ -1,0 +1,113 @@
+# Chapter 5: Dimensionality reduction techniques
+
+*In this chapter, we will practice dimensionality reduction techniques with example data.*
+
+Let's start by reading in the data. The data consists of 9 variables of which only exp_educ is relatively normally distributed. The rest of them are skewed in one way or another. The strongest correlation is between exp_life and exp_educ, indicating that in countries where more people have education, the life expectancy is also higher.
+
+```{r}
+# read in the data 
+human <- read.csv("C:/Users/koivusus/IODS/IODS-project_new/data/human.csv")
+
+# move the country names to rownames 
+library(tibble)
+human1 <- column_to_rownames(human, "Country")
+
+# show a graphical overview 
+library(GGally) 
+ggpairs(human1, progress = FALSE)
+
+# show summaries 
+summary(human1)
+```
+
+*2. Perform principal component analysis (PCA) on the raw (non-standardized) human data. Show the variability captured by the principal components. Draw a biplot displaying the observations by the first two principal components (PC1 coordinate in x-axis, PC2 coordinate in y-axis), along with arrows representing the original variables. (0-2 points)*
+
+```{r}
+# perform principal component analysis (with the SVD method)
+pca_human1 <- prcomp(human1)
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human1, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+```
+
+*3. Standardize the variables in the human data and repeat the above analysis. Interpret the results of both analysis (with and without standardizing). Are the results different? Why or why not? Include captions (brief descriptions) in your plots where you describe the results by using not just your variable names, but the actual phenomena they relate to. (0-4 points)*
+
+```{r}
+# standardize the variables
+human_std <- scale(human1)
+
+# print out summaries of the standardized variables
+summary(human_std)
+
+# perform principal component analysis (with the SVD method)
+pca_human_std <- prcomp(human_std)
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human_std, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+```
+
+*4. Give your personal interpretations of the first two principal component dimensions based on the biplot drawn after PCA on the standardized human data. (0-2 points)*
+
+```{r}
+# create and print out a summary of pca_human
+s <- summary(pca_human1)
+print(s)
+
+# rounded percentanges of variance captured by each PC
+pca_pr <- round(1*s$importance[2, ], digits = 5)
+
+# print out the percentages of variance
+print(pca_pr)
+```
+
+*5. The tea data comes from the FactoMineR package and it is measured with a questionnaire on tea: 300 individuals were asked how they drink tea (18 questions) and what are their product's perception (12 questions). In addition, some personal details were asked (4 questions).*
+
+*Load the tea dataset and convert its character variables to factors:*
+
+```{r}
+# load the tea dataset and convert its character variables to factors 
+tea <- read.csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/tea.csv", stringsAsFactors = TRUE)
+
+```
+
+*Explore the data briefly: look at the structure and the dimensions of the data. Use View(tea) to browse its contents, and visualize the data.*
+
+```{r}
+# explore structure 
+str(tea)
+
+# explore dimensions
+dim(tea)
+
+# view the data
+#View(tea)
+
+# load libraries 
+library(dplyr)
+library(tidyr)
+
+# column names to keep in the dataset
+keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
+
+# select the 'keep_columns' to create a new dataset
+tea_time <- select(tea, one_of(keep_columns))
+
+# visualize the dataset
+#library(ggplot2)
+#pivot_longer(tea_time, cols = everything()) %>% 
+#  ggplot(aes(value)) + geom_bar() + facet_wrap("name", scales = "free") + theme(axis.text.x = element_text(angle = 45, hjust = 1, #size = 8))
+```
+
+*Use Multiple Correspondence Analysis (MCA) on the tea data (or on just certain columns of the data, it is up to you!). Interpret the results of the MCA and draw at least the variable biplot of the analysis. You can also explore other plotting options for MCA. Comment on the output of the plots. (0-4 points)*
+
+```{r}
+# multiple correspondence analysis
+#library(FactoMineR)
+#mca <- MCA(tea_time, graph = FALSE)
+
+# summary of the model
+#summary(mca)
+
+# visualize MCA
+#plot(mca, invisible=c("ind"), graph.type = "classic", habillage = "quali")
+```
