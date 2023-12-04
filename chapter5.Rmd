@@ -2,7 +2,7 @@
 
 *In this chapter, we will practice dimensionality reduction techniques with example data.*
 
-Let's start by reading in the data. The data consists of 9 variables of which only exp_educ is relatively normally distributed. The rest of them are skewed in one way or another. The strongest correlation is between exp_life and exp_educ, indicating that in countries where more people have a secondary education, the life expectancy is higher.
+Let's start by reading in the data. The data consists of 9 variables of which only exp_educ is relatively normally distributed. The rest of the variables are skewed in one way or another. The strongest correlation is between exp_life and exp_educ, indicating that in countries where more people have a secondary education, the life expectancy is higher.
 
 ```{r}
 # read in the data 
@@ -50,13 +50,28 @@ pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)")
 biplot(pca_human1, cex = c(0.8, 1), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
 ```
 
-Let's standardize the variables in the human data and repeat the above analysis. 
+Let's standardize the variables in the human data and repeat the analysis. 
 
-Looks like the results from raw data vs. standardized data differ from each other quite a lot. In the raw data, the first component takes almost all of the variation, whereas in the standardized data, the variation is split between multiple components. 
+Looks like the results from raw data vs. standardized data differ from each other quite a lot. In the raw data, the first component takes almost all of the variation, whereas in the standardized data, the variation is split between multiple components, with the first one covering c. 54 % of variation. 
 
-*Interpret the results of both analysis (with and without standardizing). Are the results different? Why or why not? Include captions (brief descriptions) in your plots where you describe the results by using not just your variable names, but the actual phenomena they relate to. (0-4 points)*
+By scaling the variables to have a mean of 0 and a standard deviation of 1, we make sure that all variables are on the same scale. This allows PCA to give each variable equal weight and prevents variables with larger magnitudes (like GII in this case) from dominating the analysis. In other words, scaling the data makes the  variables "comparable" to each other. 
 
-*4. Give your personal interpretations of the first two principal component dimensions based on the biplot drawn after PCA on the standardized human data. (0-2 points)*
+When two vectors in the biplot are close, forming a small angle, the two variables are positively correlated (e.g. mort_ratio and birth_rate). If they meet each other at 90°, they are not likely to be correlated (e.g.labo_ratio and exp_life). When they diverge and form a large angle (close to 180°), they are negative correlated (e.g.labo_ratio and birth_rate). 
+
+The variables that are grouped to the component 1 are 
+
+- Maternal Mortality, 
+- Life Expectancy, 
+- Education Expectancy, 
+- Adolescent Birth Rate, 
+
+whereas variables grouped to the component 2 are 
+
+- Labour Force Participation Rate female / male ratio, 
+- Percent Representation in Parliament (Female). 
+
+Thus, the PCA seems to group variables related to individuals life (PC1) and variables related to society (PC2).
+
 
 ```{r}
 # standardize the variables
@@ -75,7 +90,7 @@ pca_pr_std <- round(1*s_std$importance[2, ], digits = 5)
 print(pca_pr_std)
 
 # create object pc_lab to be used as axis labels
-pc_lab_std <- paste0(names(pca_pr_std), " (", pca_pr, "%)")
+pc_lab_std <- paste0(names(pca_pr_std), " (", pca_pr_std, "%)")
 
 # draw a biplot
 biplot(pca_human_std, cex = c(0.8, 1), col = c("grey40", "deeppink2"), xlab = pc_lab_std[1], ylab = pc_lab_std[2])
@@ -115,9 +130,8 @@ pivot_longer(tea_time, cols = everything()) %>%
   ggplot(aes(value)) + geom_bar() + facet_wrap("name", scales = "free") + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
 ```
 
-Let's use Multiple Correspondence Analysis (MCA) on the tea data. 
+Let's use Multiple Correspondence Analysis (MCA) on the tea data. Based on the visualization of the MCA, Dimension 1 seems to be group variables on how the tea is drinked whereas the Dimension 2 seems to group variables related to where the tea is drinked. 
 
-*Interpret the results of the MCA and draw at least the variable biplot of the analysis. You can also explore other plotting options for MCA. Comment on the output of the plots. (0-4 points)*
 
 ```{r}
 # multiple correspondence analysis
