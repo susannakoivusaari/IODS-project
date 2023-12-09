@@ -62,12 +62,8 @@ RATS$Group <- factor(RATS$Group)
 # convert BPRS from wide to long 
 BPRSL <-  pivot_longer(BPRS, cols = -c(treatment, subject),
                        names_to = "weeks", values_to = "bprs") %>%
+  mutate(week = as.integer(substr(weeks, 5, 6))) %>% 
   arrange(weeks) # order by weeks variable
-
-
-# extract the week number
-BPRSL <-  BPRSL %>% 
-  mutate(week = as.integer(substr(weeks, 5, 6)))
 
 
 # convert RATS from wide to long 
