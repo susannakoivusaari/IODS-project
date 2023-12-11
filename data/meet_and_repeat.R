@@ -98,3 +98,8 @@ summary(BPRSL)
 summary(RATSL)
 
 
+# save the final datasets 
+write.csv(BPRSL, "C:/Users/koivusus/IODS/IODS-project_new/data/BPRSL.csv")
+write.csv(RATSL, "C:/Users/koivusus/IODS/IODS-project_new/data/RATSL.csv")
+
+
